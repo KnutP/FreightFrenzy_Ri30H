@@ -14,11 +14,11 @@ public class Teleop extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private final Robot robot = new Robot();
 
-    double xVelocity;
-    double yVelocity;
-    double wVelocity;
-    boolean isShooting = false;
+    double leftPower;
+    double rightPower;
+    boolean isPivotOut = false;
     boolean isGrabbing = false;
+    boolean isPivotReady = false;
 
     @Override
     public void init() {
@@ -40,23 +40,21 @@ public class Teleop extends OpMode {
     @Override
     public void loop() {
 
-        // ***** DRIVER CODE *****
-
         // Drivetrain
-        yVelocity = gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y);
-        xVelocity = -gamepad1.left_stick_x*Math.abs(gamepad1.left_stick_x);
-        wVelocity = gamepad1.right_stick_x*Math.abs(gamepad1.right_stick_x)/4;
-        yVelocity = Range.clip(yVelocity, -1.0, 1.0);
-        xVelocity = Range.clip(xVelocity, -1.0, 1.0);
-        wVelocity = Range.clip(wVelocity, -1.0, 1.0);
+        leftPower = -gamepad1.left_stick_y*Math.abs(gamepad1.left_stick_y);
+        rightPower = -gamepad1.right_stick_y*Math.abs(gamepad1.right_stick_y);
+        leftPower = Range.clip(leftPower, -1.0, 1.0);
+        rightPower = Range.clip(rightPower, -1.0, 1.0);
 
-        robot.mechanumDrive(xVelocity, yVelocity, wVelocity);
+        robot.skidSteerDrive(leftPower, rightPower);
 
-        // Shooter
+        // Lift
         if(gamepad1.y) {
-            isShooting = true;
+            robot.setLiftPower(1);
         } else if(gamepad1.a) {
-            isShooting = false;
+            robot.setLiftPower(-1);
+        } else {
+            robot.setLiftPower(-gamepad2.right_stick_y);
         }
 
         // Intake
@@ -68,36 +66,46 @@ public class Teleop extends OpMode {
             robot.setIntakePower(gamepad2.left_stick_y);
         }
 
-
-
-        // ***** OPERATOR CODE *****
-
-        // Shooter
-        if(gamepad2.y) {
-            isShooting = true;
-        } else if(gamepad2.a) {
-            isShooting = false;
+        // Pivot
+        if(gamepad1.left_bumper || gamepad2.dpad_up) {
+            isPivotOut = true;
+            isPivotReady = false;
+        } else if (gamepad1.left_trigger > 0.5 || gamepad2.dpad_down) {
+            isPivotOut = false;
+            isPivotReady = false;
+        } else if (gamepad2.dpad_left) {
+            isPivotOut = false;
+            isPivotReady = true;
         }
 
-        if(isShooting) {
-            robot.setShooterPower(1);
+        if(isPivotOut) {
+            robot.setPivotPosition(0);
+        } else if(isPivotReady) {
+            robot.setPivotPosition(0.4);
         } else {
-            robot.setShooterPower(0);
+            robot.setPivotPosition(1);
         }
 
-        // Arm
-        robot.setArmPower(gamepad2.right_stick_y);
-
-        if(gamepad2.right_bumper) {
+        // Grabber
+        if(gamepad1.right_bumper || gamepad2.right_bumper) {
             isGrabbing = true;
-        } else if (gamepad2.right_trigger > 0.5) {
+        } else if (gamepad1.right_trigger > 0.5 || gamepad2.right_trigger > 0.5) {
             isGrabbing = false;
         }
 
         if(isGrabbing) {
-            robot.setGrabberPosition(1);
-        } else {
             robot.setGrabberPosition(0);
+        } else {
+            robot.setGrabberPosition(1);
+        }
+
+        // Duck spinner
+        if(gamepad2.x) {
+            robot.setDuckSpinnerPower(-1);
+        } else if (gamepad2.y) {
+            robot.setDuckSpinnerPower(-0.5);
+        } else {
+            robot.setDuckSpinnerPower(0);
         }
 
     }

@@ -2,14 +2,15 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
 public class Robot {
 
-    private DcMotor lfDrive, lbDrive, rfDrive, rbDrive, intake, lShooter, rShooter, arm;
-    private Servo grabber;
+    private DcMotor lfDrive, lbDrive, rfDrive, rbDrive, intake, duckSpinner, lift;
+    private Servo grabber, pivot;
 
     OpMode opMode;
 
@@ -22,25 +23,23 @@ public class Robot {
         this.opMode = op;
 
         this.grabber = ahwMap.get(Servo.class, "grabber");
+        this.pivot = ahwMap.get(Servo.class, "pivot");
 
         // Define and Initialize Motors
         this.lfDrive  = ahwMap.get(DcMotor.class, "lfDrive");
-        this.lbDrive  = ahwMap.get(DcMotor.class, "lbDrive");
+//        this.lbDrive  = ahwMap.get(DcMotor.class, "lbDrive");
         this.rfDrive = ahwMap.get(DcMotor.class, "rfDrive");
-        this.rbDrive = ahwMap.get(DcMotor.class, "rbDrive");
+//        this.rbDrive = ahwMap.get(DcMotor.class, "rbDrive");
         lfDrive.setDirection(DcMotor.Direction.REVERSE);
-        lbDrive.setDirection((DcMotor.Direction.REVERSE));
+//        lbDrive.setDirection((DcMotor.Direction.REVERSE));
         rfDrive.setDirection(DcMotor.Direction.FORWARD);
-        rbDrive.setDirection((DcMotor.Direction.FORWARD));
+//        rbDrive.setDirection((DcMotor.Direction.FORWARD));
 
         this.intake  = ahwMap.get(DcMotor.class, "intake");
-        this.arm  = ahwMap.get(DcMotor.class, "arm");
-        this.lShooter = ahwMap.get(DcMotor.class, "lShooter");
-        this.rShooter = ahwMap.get(DcMotor.class, "rShooter");
-        intake.setDirection(DcMotor.Direction.REVERSE);
-        arm.setDirection((DcMotor.Direction.FORWARD));
-        lShooter.setDirection(DcMotor.Direction.FORWARD);
-        rShooter.setDirection(DcMotor.Direction.REVERSE);
+        this.lift = ahwMap.get(DcMotor.class, "lift");
+        this.duckSpinner = ahwMap.get(DcMotor.class, "duckSpinner");
+        intake.setDirection(DcMotor.Direction.FORWARD);
+        duckSpinner.setDirection(DcMotor.Direction.FORWARD);
 
         stop();
 
@@ -48,9 +47,11 @@ public class Robot {
         setMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         lfDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lbDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        lbDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rfDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rbDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        rbDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        lift.setZeroPowerBehavior((DcMotor.ZeroPowerBehavior.BRAKE));
 
     }
 
@@ -60,11 +61,15 @@ public class Robot {
         grabber.setPosition(position);
     }
 
+    public void setPivotPosition(double position) {
+        pivot.setPosition((position));
+    }
+
     public void skidSteerDrive(double lPower, double rPower){
         lfDrive.setPower(lPower);
-        lbDrive.setPower(lPower);
+//        lbDrive.setPower(lPower);
         rfDrive.setPower(rPower);
-        rbDrive.setPower(rPower);
+//        rbDrive.setPower(rPower);
     }
 
     // Moves the drive train using the given x, y, and rotational velocities
@@ -84,8 +89,8 @@ public class Robot {
 
         lfDrive.setPower(lfVelocity * speedScale);
         rfDrive.setPower(rfVelocity * speedScale);
-        lbDrive.setPower(lbVelocity * speedScale);
-        rbDrive.setPower(rbVelocity * speedScale);
+//        lbDrive.setPower(lbVelocity * speedScale);
+//        rbDrive.setPower(rbVelocity * speedScale);
 
     }
 
@@ -100,30 +105,29 @@ public class Robot {
         return max;
     }
 
-    public void setShooterPower(double power) {
-        lShooter.setPower(power);
-        rShooter.setPower(power);
+    public void setDuckSpinnerPower(double power) {
+        duckSpinner.setPower(power);
     }
 
     public void setIntakePower(double power) {
         intake.setPower(power);
     }
 
-    public void setArmPower(double power) {
-        arm.setPower(power);
+    public void setLiftPower(double power) {
+        lift.setPower(power);
     }
 
     public void stop(){
         lfDrive.setPower(0);
-        lbDrive.setPower(0);
+//        lbDrive.setPower(0);
         rfDrive.setPower(0);
-        rbDrive.setPower(0);
+//        rbDrive.setPower(0);
     }
 
     public void setMotorMode(DcMotor.RunMode mode) {
         rfDrive.setMode(mode);
-        rbDrive.setMode(mode);
+//        rbDrive.setMode(mode);
         lfDrive.setMode(mode);
-        lbDrive.setMode(mode);
+//        lbDrive.setMode(mode);
     }
 }
